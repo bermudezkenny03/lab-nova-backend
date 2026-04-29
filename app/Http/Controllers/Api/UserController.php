@@ -141,17 +141,12 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'General data retrieved successfully',
                 'roles' => $roles,
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error retrieving general data',
                 'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'message' => 'General data retrieved successfully',
-            'roles' => $roles,
-        ]);
     }
 }
