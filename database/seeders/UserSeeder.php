@@ -17,10 +17,10 @@ class UserSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $superAdminRole = Role::where('name', 'Super Admin')->first();
-        $adminRole = Role::where('name', 'Administrador')->first();
-        $labManagerRole = Role::where('name', 'Encargado de Laboratorio')->first();
-        $teacherRole = Role::where('name', 'Docente')->first();
-        $studentRole = Role::where('name', 'Estudiante')->first();
+        $adminRole = Role::where('name', 'Admin')->first();
+        $labManagerRole = Role::where('name', 'Lab Manager')->first();
+        $teacherRole = Role::where('name', 'Teacher')->first();
+        $studentRole = Role::where('name', 'Student')->first();
 
         if ($superAdminRole) {
             User::create([
