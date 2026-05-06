@@ -16,6 +16,7 @@ class UserController extends Controller
     public function index()
     {
         try {
+            $this->authorize('viewAny', User::class);
             $users = User::with(['userDetail', 'role'])->get();
 
             return response()->json([
@@ -33,6 +34,7 @@ class UserController extends Controller
     // Store a newly created resource in storage.
     public function store(StoreUserRequest $request)
     {
+        $this->authorize('create', User::class);
         DB::beginTransaction();
 
         try {
@@ -67,6 +69,8 @@ class UserController extends Controller
                 return response()->json(['message' => 'User not found.'], 404);
             }
 
+            $this->authorize('view', $user);
+
             return response()->json([
                 'message' => 'User retrieved successfully',
                 'user' => $user,
@@ -87,6 +91,8 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
+
+            $this->authorize('update', $user);
 
             $validated = $request->validated();
             $user->updateUser($validated);
@@ -118,6 +124,8 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
+
+            $this->authorize('delete', $user);
 
             $user->delete();
 

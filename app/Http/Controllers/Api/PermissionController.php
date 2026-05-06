@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Models\Permission;
 use App\Models\Module;
 use App\Models\Role;
+use App\Models\User;
 
 class PermissionController extends Controller
 {
@@ -126,6 +127,11 @@ class PermissionController extends Controller
 
             DB::commit();
 
+            // Clear permission cache for users of this role
+            User::where('role_id', $role->id)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
+
             $message = "Permissions assigned successfully";
 
             if ($assignedCount > 0) {
@@ -200,6 +206,11 @@ class PermissionController extends Controller
 
             DB::commit();
 
+            // Clear caches for users of this role
+            User::where('role_id', $role->id)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Module permissions updated successfully',
@@ -235,6 +246,11 @@ class PermissionController extends Controller
 
             DB::commit();
 
+            // Clear caches for users of this role
+            User::where('role_id', $role->id)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'All permissions removed successfully'
@@ -267,6 +283,11 @@ class PermissionController extends Controller
             }
 
             DB::commit();
+
+            // Clear cache for users of this role
+            User::where('role_id', $role->id)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
 
             return response()->json([
                 'success' => true,
@@ -308,6 +329,11 @@ class PermissionController extends Controller
             }
 
             DB::commit();
+
+            // Clear cache for target role users
+            User::where('role_id', $targetRole->id)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
 
             return response()->json([
                 'success' => true,
@@ -419,6 +445,11 @@ class PermissionController extends Controller
             }
 
             DB::commit();
+
+            // Clear cache for affected users
+            User::whereIn('role_id', $roleIds)->get()->each(function ($u) {
+                $u->clearPermissionCache();
+            });
 
             $roles = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
 

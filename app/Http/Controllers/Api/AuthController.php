@@ -19,9 +19,11 @@ class AuthController extends Controller
         $user = User::with(['userDetail', 'role'])->where('email', $request->email)->first();
 
         $modules = [];
+        $permissions = [];
 
         if ($user) {
             $modules = $user->getModulesWithInfo();
+            $permissions = $user->getPermissionMap();
         }
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
@@ -35,6 +37,7 @@ class AuthController extends Controller
             'token' => $token,
             'user' => $user,
             'modules' => $modules,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -47,5 +50,16 @@ class AuthController extends Controller
                 'message' => 'Error logging out: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function getPermissions(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) return response()->json(['message' => 'Unauthenticated'], 401);
+
+        $modules = $user->getModulesWithInfo();
+        $permissions = $user->getPermissionMap();
+
+        return response()->json(['modules' => $modules, 'permissions' => $permissions]);
     }
 }
