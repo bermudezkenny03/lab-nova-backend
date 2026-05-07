@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
@@ -25,14 +26,22 @@ class CategoryController extends Controller
     {
         try {
             $this->authorize('create', Category::class);
-            $category = Category::create($request->validated());
-            return response()->json(['message' => 'Category created', 'category' => $category], 201);
+            $data = $request->validated();
+            $data['slug'] = Str::slug($data['name']);
+            $category = Category::create($data);
+            return response()->json([
+                'message' => 'Category created',
+                'category' => $category
+            ], 201);
         } catch (\Exception $e) {
             Log::error('Error creating category', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Error creating category', 'error' => $e->getMessage()], 500);
+
+            return response()->json([
+                'message' => 'Error creating category',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
     public function show($id)
     {
         try {
