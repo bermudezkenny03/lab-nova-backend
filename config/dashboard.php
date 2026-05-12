@@ -1,15 +1,24 @@
 <?php
 
 return [
-    // Modules that influence whether the dashboard should be visible when explicit dashboard permission is not set
-    'relevant_modules' => [
-        'reports',
-        'reservations',
-        'equipment',
-        'users',
-        'categories',
+    'cache_ttl_minutes' => (int) env('DASHBOARD_CACHE_TTL_MINUTES', 60),
+
+    'roles' => [
+        'super_admin' => (int) env('ROLE_SUPER_ADMIN_ID', 1),
+        'admin' => (int) env('ROLE_ADMIN_ID', 2),
+        'lab_manager' => (int) env('ROLE_LAB_MANAGER_ID', 3),
+        'teacher' => (int) env('ROLE_TEACHER_ID', 4),
+        'student' => (int) env('ROLE_STUDENT_ID', 5),
     ],
 
-    // TTL de caché (minutos) para mapas de permisos por usuario. Se puede configurar desde .env (DASHBOARD_CACHE_TTL).
-    'cache_ttl_minutes' => env('DASHBOARD_CACHE_TTL', 60),
+    'staff_role_ids' => [
+        (int) env('ROLE_SUPER_ADMIN_ID', 1),
+        (int) env('ROLE_ADMIN_ID', 2),
+        (int) env('ROLE_LAB_MANAGER_ID', 3),
+        (int) env('ROLE_TEACHER_ID', 4),
+    ],
+
+    'relevant_modules' => array_filter(
+        explode(',', env('DASHBOARD_RELEVANT_MODULES', 'reports,reservations,equipment,users,categories'))
+    ),
 ];

@@ -15,16 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->string('name', 150);
-            $table->string('code', 50)->unique();
+            $table->string('code', 50)->nullable()->unique();
             $table->text('description')->nullable();
             $table->unsignedInteger('stock')->default(1);
-            $table->enum('status', ['available', 'maintenance', 'out_of_service'])->default('available');
+            $table->foreignId('equipment_status_id')->constrained('equipment_statuses')->restrictOnDelete();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['category_id', 'status']);
-            $table->index(['is_active', 'name']);
         });
     }
 

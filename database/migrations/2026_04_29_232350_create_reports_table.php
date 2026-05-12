@@ -16,12 +16,9 @@ return new class extends Migration
             $table->foreignId('report_request_id')->constrained('report_requests')->cascadeOnDelete();
             $table->string('file_path', 255);
             $table->string('file_name', 150)->nullable();
-            $table->string('file_type', 20)->default('pdf');
+            $table->foreignId('report_file_type_id')->constrained('report_file_types')->restrictOnDelete();
             $table->timestamp('generated_at')->nullable();
             $table->timestamps();
-
-            $table->index(['report_request_id']);
-            $table->index(['generated_at']);
         });
     }
 

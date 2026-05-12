@@ -15,11 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained('reservations')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('action', 100);
+            $table->foreignId('reservation_log_action_id')->constrained('reservation_log_actions')->restrictOnDelete();
             $table->text('description')->nullable();
             $table->timestamps();
-
-            $table->index(['reservation_id', 'action']);
         });
     }
 
