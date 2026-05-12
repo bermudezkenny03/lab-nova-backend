@@ -19,8 +19,6 @@ return new class extends Migration
             $table->foreignId('equipment_id')->constrained('equipments')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['equipment_id', 'is_primary']);
         });
     }
 

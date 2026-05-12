@@ -2,25 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Cache;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'last_name',
@@ -31,21 +25,11 @@ class User extends Authenticatable
         'role_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -54,37 +38,44 @@ class User extends Authenticatable
         ];
     }
 
+    /** Relationships */
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function userDetail()
     {
-        return $this->hasOne(UserDetail::class);
+        return $this->hasOne(UserDetail::class, 'user_id');
     }
 
-    public static function createUser($validated)
+    /** User helpers */
+    public static function createUser(array $validated): self
     {
-        $user = self::create([
+        return self::create([
             'name' => $validated['name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'phone' => $validated['phone'],
-            'status' => $validated['status'],
+            'phone' => $validated['phone'] ?? null,
+            'status' => $validated['status'] ?? true,
             'role_id' => $validated['role_id'],
         ]);
-
-        return $user;
     }
 
-    public function updateUser($validated)
+    public function updateUser(array $validated): void
     {
-        $this->update(array_filter($validated, fn($key) => in_array($key, $this->getFillable()), ARRAY_FILTER_USE_KEY));
+        $this->update(
+            array_filter(
+                $validated,
+                fn($key) => in_array($key, $this->getFillable(), true),
+                ARRAY_FILTER_USE_KEY
+            )
+        );
     }
 
-    public function scopeWhereNotAssigned($query, $assignedUserIds)
+    /** Query scopes */
+    public function scopeWhereNotAssigned($query, array $assignedUserIds)
     {
         return $query->whereNotIn('id', $assignedUserIds);
     }
@@ -94,24 +85,63 @@ class User extends Authenticatable
         return $query->orderBy('id', 'desc');
     }
 
-    public function hasModule($moduleSlug)
+    public function scopeActive($query)
     {
-        return $this->role->hasModule($moduleSlug) ?? false;
+        return $query->where('status', true);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('status', false);
+    }
+
+    public function scopeByRole($query, int $roleId)
+    {
+        return $query->where('role_id', $roleId);
+    }
+
+    /** Role helpers */
+    public function isSuperAdmin(): bool
+    {
+        return (int) $this->role_id === (int) config('dashboard.roles.super_admin');
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->role_id === (int) config('dashboard.roles.admin');
+    }
+
+    public function isLabManager(): bool
+    {
+        return (int) $this->role_id === (int) config('dashboard.roles.lab_manager');
+    }
+
+    public function isTeacher(): bool
+    {
+        return (int) $this->role_id === (int) config('dashboard.roles.teacher');
+    }
+
+    public function isStudent(): bool
+    {
+        return (int) $this->role_id === (int) config('dashboard.roles.student');
     }
 
     public function isStaff(): bool
     {
-        if (! $this->status || ! $this->role) {
-            return false;
-        }
-
-        return in_array($this->role->name, [
-            'Super Admin',
-            'Admin',
-        ]);
+        return $this->status && in_array(
+            (int) $this->role_id,
+            config('dashboard.staff_role_ids', []),
+            true
+        );
     }
 
-    public function getModules()
+    /** Module access */
+    public function hasModule(string $moduleSlug): bool
+    {
+        return $this->role?->hasModule($moduleSlug) ?? false;
+    }
+
+    public function getModules(): array
     {
         $modules = collect($this->role?->getModules() ?? []);
 
@@ -122,17 +152,17 @@ class User extends Authenticatable
         return $modules->values()->toArray();
     }
 
-    public function getModulesWithInfo()
+    public function getModulesWithInfo(): array
     {
         $modules = collect($this->role?->getModulesWithInfo() ?? []);
-        if ($this->isStaff()) {
 
+        if ($this->isStaff()) {
             $dashboard = Module::query()
                 ->where('slug', 'dashboard')
                 ->where('is_active', true)
                 ->first();
 
-            if ($dashboard && ! $modules->contains(fn($m) => $m['slug'] === 'dashboard')) {
+            if ($dashboard && ! $modules->contains(fn($module) => $module['slug'] === 'dashboard')) {
                 $modules->prepend([
                     'slug' => $dashboard->slug,
                     'name' => $dashboard->name,
@@ -144,12 +174,13 @@ class User extends Authenticatable
             }
         }
 
-        return $modules->sortBy('sort_order')->values()->toArray();
+        return $modules
+            ->sortBy('sort_order')
+            ->values()
+            ->toArray();
     }
 
-    /**
-     * Check if user has a specific permission for a module.
-     */
+    /** Permission access */
     public function hasPermission(string $moduleSlug, string $permissionSlug): bool
     {
         if (! $this->role) {
@@ -157,88 +188,102 @@ class User extends Authenticatable
         }
 
         return RoleModulePermission::where('role_id', $this->role->id)
-            ->whereHas('module', fn($q) => $q->where('slug', $moduleSlug)->where('is_active', true))
-            ->whereHas('permission', fn($q) => $q->where('slug', $permissionSlug))
+            ->whereHas('module', function ($query) use ($moduleSlug) {
+                $query->where('slug', $moduleSlug)
+                    ->where('is_active', true);
+            })
+            ->whereHas('permission', function ($query) use ($permissionSlug) {
+                $query->where('slug', $permissionSlug);
+            })
             ->exists();
     }
 
-    /**
-     * Return a permission map for provided modules and typical actions.
-     * Example: ['equipment' => ['view' => true, 'create' => false, ...], ...]
-     */
+    /** Cached permission map */
     public function getPermissionMap(array $moduleSlugs = []): array
     {
         $actions = ['view', 'create', 'edit', 'delete'];
-
-        // Create cache key suffix for a specific module list
         $mapKeySuffix = '';
+
         if (! empty($moduleSlugs)) {
             $mapKeySuffix = ':' . md5(implode(',', $moduleSlugs));
         }
 
         $cacheKey = "user_permissions:{$this->id}{$mapKeySuffix}";
-        // Asegurar que TTL es numérico — puede venir como string desde .env
         $ttl = (int) config('dashboard.cache_ttl_minutes', 60);
 
-        $self = $this;
-        return Cache::remember($cacheKey, now()->addMinutes($ttl), function () use ($self, $moduleSlugs, $actions) {
+        return Cache::remember($cacheKey, now()->addMinutes($ttl), function () use ($moduleSlugs, $actions) {
             $map = [];
 
-            if (empty($moduleSlugs) && $self->role) {
-                // derive from modules assigned to role
-                $moduleSlugs = Module::where('is_active', true)->pluck('slug')->toArray();
+            if (empty($moduleSlugs)) {
+                $moduleSlugs = Module::query()
+                    ->where('is_active', true)
+                    ->pluck('slug')
+                    ->toArray();
             }
 
             foreach ($moduleSlugs as $slug) {
                 $map[$slug] = [];
-                foreach ($actions as $act) {
-                    $map[$slug][$act] = $self->hasPermission($slug, $act);
+
+                foreach ($actions as $action) {
+                    $map[$slug][$action] = $this->hasPermission($slug, $action);
                 }
             }
 
-            // Compute dynamic dashboard visibility: if dashboard not explicitly enabled,
-            // enable it when the user has 'view' on a set of relevant modules.
-            $dashboardKey = 'dashboard';
-            if (! array_key_exists($dashboardKey, $map)) {
-                $relevant = config('dashboard.relevant_modules', ['reports','reservations','equipment','users','categories']);
-                $dashboardView = false;
-                foreach ($relevant as $r) {
-                    if (isset($map[$r]) && ($map[$r]['view'] ?? false)) {
-                        $dashboardView = true;
-                        break;
-                    }
-                }
-
-                $map[$dashboardKey] = [
-                    'view' => $dashboardView,
-                    'create' => false,
-                    'edit' => false,
-                    'delete' => false,
-                ];
-            } else {
-                // ensure dashboard has basic keys
-                foreach (['view','create','edit','delete'] as $a) {
-                    $map[$dashboardKey][$a] = $map[$dashboardKey][$a] ?? false;
-                }
-            }
+            $this->ensureDashboardPermission($map);
 
             return $map;
         });
     }
 
-    /**
-     * Limpiar la caché del mapa de permisos para este usuario.
-     * Clear cached permission map for this user.
-     */
+    /** Dashboard permission fallback */
+    private function ensureDashboardPermission(array &$map): void
+    {
+        $dashboardKey = 'dashboard';
+
+        if (array_key_exists($dashboardKey, $map)) {
+            foreach (['view', 'create', 'edit', 'delete'] as $action) {
+                $map[$dashboardKey][$action] = $map[$dashboardKey][$action] ?? false;
+            }
+
+            return;
+        }
+
+        $relevantModules = config('dashboard.relevant_modules', [
+            'reports',
+            'reservations',
+            'equipment',
+            'users',
+            'categories',
+        ]);
+
+        $canViewDashboard = false;
+
+        foreach ($relevantModules as $moduleSlug) {
+            if (($map[$moduleSlug]['view'] ?? false) === true) {
+                $canViewDashboard = true;
+                break;
+            }
+        }
+
+        $map[$dashboardKey] = [
+            'view' => $canViewDashboard || $this->isStaff(),
+            'create' => false,
+            'edit' => false,
+            'delete' => false,
+        ];
+    }
+
+    /** Cache helpers */
     public function clearPermissionCache(array $moduleSlugs = []): void
     {
         $mapKeySuffix = '';
+
         if (! empty($moduleSlugs)) {
             $mapKeySuffix = ':' . md5(implode(',', $moduleSlugs));
         }
 
         $cacheKey = "user_permissions:{$this->id}{$mapKeySuffix}";
+
         Cache::forget($cacheKey);
     }
 }
-

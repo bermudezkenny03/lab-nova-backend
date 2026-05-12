@@ -12,53 +12,53 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Electronic Components',
-                'description' => 'Basic electronic parts such as resistors, capacitors, diodes, transistors, and integrated circuits.',
+                'name' => 'Componentes electrónicos',
+                'description' => 'Partes electrónicas básicas como resistencias, capacitores, diodos, transistores y circuitos integrados.',
                 'status' => 1,
             ],
             [
-                'name' => 'Measurement Instruments',
-                'description' => 'Devices used to measure electrical or physical values, such as multimeters, oscilloscopes, and signal meters.',
+                'name' => 'Instrumentos de medición',
+                'description' => 'Dispositivos utilizados para medir valores eléctricos o físicos, como multímetros, osciloscopios y medidores de señal.',
                 'status' => 1,
             ],
             [
-                'name' => 'Development Boards',
-                'description' => 'Programmable boards used for electronics, robotics, and embedded systems projects.',
+                'name' => 'Placas de desarrollo',
+                'description' => 'Placas programables utilizadas en proyectos de electrónica, robótica y sistemas embebidos.',
                 'status' => 1,
             ],
             [
-                'name' => 'Power Supplies',
-                'description' => 'Equipment used to provide regulated electrical power for laboratory practices and projects.',
+                'name' => 'Fuentes de alimentación',
+                'description' => 'Equipos utilizados para proporcionar energía eléctrica regulada en prácticas y proyectos de laboratorio.',
                 'status' => 1,
             ],
             [
-                'name' => 'Cables & Connectors',
-                'description' => 'Connection accessories such as jumper wires, USB cables, banana cables, adapters, and connectors.',
+                'name' => 'Cables y conectores',
+                'description' => 'Accesorios de conexión como cables jumper, cables USB, cables banana, adaptadores y conectores.',
                 'status' => 1,
             ],
             [
-                'name' => 'Tools',
-                'description' => 'Manual and technical tools such as soldering irons, pliers, screwdrivers, wire cutters, and tweezers.',
+                'name' => 'Herramientas',
+                'description' => 'Herramientas manuales y técnicas como cautines, pinzas, destornilladores, cortadores de cable y tweezers.',
                 'status' => 1,
             ],
             [
-                'name' => 'Sensors & Modules',
-                'description' => 'Electronic modules and sensors used in automation, robotics, IoT, and control projects.',
+                'name' => 'Sensores y módulos',
+                'description' => 'Módulos electrónicos y sensores utilizados en proyectos de automatización, robótica, IoT y control.',
                 'status' => 1,
             ],
             [
-                'name' => 'Lab Equipment',
-                'description' => 'General laboratory equipment used for academic practices, testing, and experimentation.',
+                'name' => 'Equipos de laboratorio',
+                'description' => 'Equipos generales de laboratorio utilizados para prácticas académicas, pruebas y experimentación.',
                 'status' => 1,
             ],
             [
-                'name' => 'Computer Equipment',
-                'description' => 'Computing devices and accessories such as laptops, monitors, keyboards, mice, and peripherals.',
+                'name' => 'Equipos de cómputo',
+                'description' => 'Dispositivos y accesorios informáticos como laptops, monitores, teclados, mouse y periféricos.',
                 'status' => 1,
             ],
             [
-                'name' => 'Safety Equipment',
-                'description' => 'Protective equipment used to maintain safety during laboratory activities.',
+                'name' => 'Equipos de seguridad',
+                'description' => 'Equipos de protección utilizados para mantener la seguridad durante las actividades de laboratorio.',
                 'status' => 1,
             ],
         ];

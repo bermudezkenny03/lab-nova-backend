@@ -15,14 +15,13 @@ class StoreEquipmentRequest extends FormRequest
     {
         return [
             'category_id' => 'nullable|exists:categories,id',
+            'equipment_status_id' => 'required|exists:equipment_statuses,id',
             'name' => 'required|string|max:150',
-            'code' => 'required|string|max:50|unique:equipments,code',
             'description' => 'nullable|string',
             'stock' => 'nullable|integer|min:0',
-            'status' => 'in:available,maintenance,out_of_service',
-            'is_active' => 'boolean',
-            'equipment_images'     => 'required|array',
-            'equipment_images.*'   => 'image|mimes:jpg,jpeg,png,webp|max:10240',
+            'is_active' => 'sometimes|boolean',
+            'equipment_images' => 'required|array|min:1',
+            'equipment_images.*' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
         ];
     }
 }

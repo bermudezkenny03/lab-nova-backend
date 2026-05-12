@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('user_details', function (Blueprint $table) {
             $table->id();
-            $table->string('gender', 14)->nullable();
             $table->date('birthdate')->nullable();
             $table->string('address', 100)->nullable();
             $table->string('addon_address', 50)->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('gender_type_id')->nullable()->constrained('gender_types')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

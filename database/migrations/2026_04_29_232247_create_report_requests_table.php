@@ -14,15 +14,13 @@ return new class extends Migration
         Schema::create('report_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('type', ['reservations', 'equipment_usage', 'user_activity']);
+            $table->foreignId('report_request_type_id')->constrained('report_request_types')->restrictOnDelete();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+            $table->foreignId('report_request_status_id')->constrained('report_request_statuses')->restrictOnDelete();
             $table->json('filters')->nullable();
             $table->timestamps();
-
-            $table->index(['user_id', 'status']);
-            $table->index(['type', 'status']);
+            $table->softDeletes();
         });
     }
 

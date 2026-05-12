@@ -14,13 +14,14 @@ class UpdateEquipmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'sometimes|nullable|exists:categories,id',
+            'equipment_status_id' => 'sometimes|exists:equipment_statuses,id',
             'name' => 'sometimes|string|max:150',
-            'code' => 'sometimes|string|max:50',
-            'description' => 'nullable|string',
-            'stock' => 'nullable|integer|min:0',
-            'status' => 'in:available,maintenance,out_of_service',
+            'description' => 'sometimes|nullable|string',
+            'stock' => 'sometimes|nullable|integer|min:0',
             'is_active' => 'sometimes|boolean',
+            'equipment_images' => 'sometimes|array|min:1',
+            'equipment_images.*' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
         ];
     }
 }

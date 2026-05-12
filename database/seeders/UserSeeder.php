@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,16 +16,16 @@ class UserSeeder extends Seeder
         User::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $superAdminRole = Role::where('name', 'Super Admin')->first();
-        $adminRole = Role::where('name', 'Admin')->first();
-        $labManagerRole = Role::where('name', 'Lab Manager')->first();
-        $teacherRole = Role::where('name', 'Teacher')->first();
-        $studentRole = Role::where('name', 'Student')->first();
+        $superAdminRole = Role::where('name', 'Super Administrador')->first();
+        $adminRole = Role::where('name', 'Administrador')->first();
+        $labManagerRole = Role::where('name', 'Encargado de Laboratorio')->first();
+        $teacherRole = Role::where('name', 'Docente')->first();
+        $studentRole = Role::where('name', 'Estudiante')->first();
 
         if ($superAdminRole) {
             User::create([
                 'name' => 'Super',
-                'last_name' => 'Admin',
+                'last_name' => 'Administrador',
                 'email' => 'superadmin@labnova.com',
                 'password' => Hash::make('Password123!'),
                 'phone' => '300000001',
@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
         if ($labManagerRole) {
             User::create([
                 'name' => 'Carlos',
-                'last_name' => 'Ramirez',
+                'last_name' => 'Ramírez',
                 'email' => 'laboratorio@labnova.com',
                 'password' => Hash::make('Password123!'),
                 'phone' => '300000003',
@@ -61,7 +61,7 @@ class UserSeeder extends Seeder
         if ($teacherRole) {
             User::create([
                 'name' => 'Laura',
-                'last_name' => 'Martinez',
+                'last_name' => 'Martínez',
                 'email' => 'docente@labnova.com',
                 'password' => Hash::make('Password123!'),
                 'phone' => '300000004',
@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
         if ($studentRole) {
             User::create([
                 'name' => 'Juan',
-                'last_name' => 'Perez',
+                'last_name' => 'Pérez',
                 'email' => 'estudiante@labnova.com',
                 'password' => Hash::make('Password123!'),
                 'phone' => '300000005',
