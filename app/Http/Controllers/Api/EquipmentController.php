@@ -15,7 +15,7 @@ class EquipmentController extends Controller
     {
         try {
             $this->authorize('viewAny', Equipment::class);
-            $items = Equipment::with('images','category')->orderBy('name')->get();
+            $items = Equipment::with('images', 'category')->orderBy('name')->get();
             return response()->json(['data' => $items]);
         } catch (\Exception $e) {
             Log::error('Error fetching equipment', ['error' => $e->getMessage()]);
@@ -25,29 +25,31 @@ class EquipmentController extends Controller
 
     public function store(StoreEquipmentRequest $request)
     {
-        try {
-            $this->authorize('create', Equipment::class);
-            $validated = $request->validated();
-            $equipment = Equipment::create(array_filter($validated, fn($k) => in_array($k, (new Equipment)->getFillable()), ARRAY_FILTER_USE_KEY));
+        $this->authorize('create', Equipment::class);
 
-            if (!empty($validated['images'])) {
-                foreach ($validated['images'] as $img) {
-                    $img['equipment_id'] = $equipment->id;
-                    EquipmentImage::create($img);
-                }
-            }
+        $validated = $request->validated();
 
-            return response()->json(['message' => 'Equipment created', 'equipment' => $equipment->load('images')], 201);
-        } catch (\Exception $e) {
-            Log::error('Error creating equipment', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Error creating equipment', 'error' => $e->getMessage()], 500);
+        $equipment = Equipment::create(
+            array_intersect_key(
+                $validated,
+                array_flip((new Equipment)->getFillable())
+            )
+        );
+
+        if ($request->hasFile('equipment_images')) {
+            EquipmentImage::saveFiles($request->file('equipment_images'), $equipment->id);
         }
+
+        return response()->json([
+            'message' => 'Equipment created',
+            'equipment' => $equipment->load('images')
+        ], 201);
     }
 
     public function show($id)
     {
         try {
-            $equipment = Equipment::with('images','category')->find($id);
+            $equipment = Equipment::with('images', 'category')->find($id);
             if (! $equipment) return response()->json(['message' => 'Not found'], 404);
             $this->authorize('view', $equipment);
             return response()->json(['equipment' => $equipment]);

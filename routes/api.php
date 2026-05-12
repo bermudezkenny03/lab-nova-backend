@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Resource routes for catalog and reservations
     Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('equipment', EquipmentController::class);
+    Route::apiResource('equipments', EquipmentController::class);
     Route::apiResource('reservations', ReservationController::class);
     Route::apiResource('reservation-logs', ReservationLogController::class);
     Route::apiResource('report-requests', ReportRequestController::class);

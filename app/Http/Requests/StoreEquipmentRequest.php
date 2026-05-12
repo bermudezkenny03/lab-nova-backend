@@ -21,10 +21,8 @@ class StoreEquipmentRequest extends FormRequest
             'stock' => 'nullable|integer|min:0',
             'status' => 'in:available,maintenance,out_of_service',
             'is_active' => 'boolean',
-            'images' => 'array',
-            'images.*.image_path' => 'string',
-            'images.*.image_name' => 'string',
-            'images.*.is_primary' => 'boolean',
+            'equipment_images'     => 'required|array',
+            'equipment_images.*'   => 'image|mimes:jpg,jpeg,png,webp|max:10240',
         ];
     }
 }
