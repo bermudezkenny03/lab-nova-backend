@@ -14,7 +14,7 @@ class ReservationController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Reservation::class);
-        $items = Reservation::with(['user','equipment'])->orderBy('start_time','desc')->get();
+        $items = Reservation::with(['user','equipment','reservationStatus'])->orderBy('start_time','desc')->get();
         return response()->json(['data' => $items]);
     }
 
@@ -23,10 +23,13 @@ class ReservationController extends Controller
         try {
             $this->authorize('create', Reservation::class);
             $validated = $request->validated();
+            if (!isset($validated['status'])) {
+                $validated['status'] = 'pending';
+            }
 
             // Prevent overlapping reservations for the same equipment
             $conflict = Reservation::where('equipment_id', $validated['equipment_id'])
-                ->whereIn('status', ['pending', 'approved'])
+                ->whereHas('reservationStatus', fn($q) => $q->whereIn('slug', ['pending', 'approved']))
                 ->where(function ($q) use ($validated) {
                     $q->where('start_time', '<', $validated['end_time'])
                       ->where('end_time', '>', $validated['start_time']);
@@ -55,7 +58,7 @@ class ReservationController extends Controller
 
     public function show($id)
     {
-        $reservation = Reservation::with(['user','equipment','logs'])->find($id);
+        $reservation = Reservation::with(['user','equipment','logs','reservationStatus'])->find($id);
         if (! $reservation) return response()->json(['message' => 'Not found'], 404);
         $this->authorize('view', $reservation);
         return response()->json(['reservation' => $reservation]);
@@ -76,7 +79,7 @@ class ReservationController extends Controller
             $newEnd = $validated['end_time'] ?? $reservation->end_time;
 
             $conflict = Reservation::where('equipment_id', $newEquipmentId)
-                ->whereIn('status', ['pending', 'approved'])
+                ->whereHas('reservationStatus', fn($q) => $q->whereIn('slug', ['pending', 'approved']))
                 ->where('id', '!=', $reservation->id)
                 ->where(function ($q) use ($newStart, $newEnd) {
                     $q->where('start_time', '<', $newEnd)

@@ -19,6 +19,7 @@ class StoreReservationRequest extends FormRequest
             'start_time' => 'required|date_format:Y-m-d H:i:s',
             'end_time' => 'required|date_format:Y-m-d H:i:s|after:start_time',
             'notes' => 'nullable|string',
+            'status' => 'sometimes|in:pending,approved,rejected,cancelled,completed',
         ];
     }
 }

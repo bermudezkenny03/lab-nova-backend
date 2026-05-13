@@ -9,7 +9,7 @@ class Reservation extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['user_id', 'equipment_id', 'start_time', 'end_time', 'status', 'notes', 'rejection_reason', 'approved_by', 'approved_at'];
+    protected $fillable = ['user_id', 'equipment_id', 'start_time', 'end_time', 'reservation_status_id', 'notes', 'rejection_reason', 'approved_by', 'approved_at'];
 
     public function user()
     {
@@ -29,5 +29,23 @@ class Reservation extends Model
     public function logs()
     {
         return $this->hasMany(ReservationLog::class);
+    }
+
+    public function reservationStatus()
+    {
+        return $this->belongsTo(ReservationStatus::class, 'reservation_status_id');
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->reservationStatus?->slug;
+    }
+
+    public function setStatusAttribute($value)
+    {
+        $status = ReservationStatus::where('slug', $value)->first();
+        if ($status) {
+            $this->attributes['reservation_status_id'] = $status->id;
+        }
     }
 }
