@@ -35,6 +35,34 @@ class EquipmentController extends Controller
         }
     }
 
+    public function getGeneralData()
+    {
+        try {
+            $categories = DB::table('categories')
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            $statuses = DB::table('equipment_statuses')
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'categories' => $categories,
+                'statuses' => $statuses,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error fetching general data for equipment', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Error fetching general data',
+            ], 500);
+        }
+    }
+
     public function store(StoreEquipmentRequest $request)
     {
         try {
@@ -138,10 +166,12 @@ class EquipmentController extends Controller
         } catch (\Throwable $e) {
             Log::error('Error updating equipment', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'message' => 'Error updating equipment',
+                'debug' => $e->getMessage(),
             ], 500);
         }
     }
