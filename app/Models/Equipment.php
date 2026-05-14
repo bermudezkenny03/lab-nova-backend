@@ -42,6 +42,11 @@ class Equipment extends Model
         return $this->belongsTo(EquipmentStatus::class, 'equipment_status_id');
     }
 
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'equipment_id');
+    }
+
     // Scope to filter only active equipment
     public function scopeIsActive($query)
     {

@@ -39,7 +39,8 @@ class CatalogSeeder extends Seeder
         $this->seedTable('report_file_types', [
             ['name' => 'PDF', 'slug' => 'pdf', 'extension' => 'pdf', 'sort_order' => 1],
             ['name' => 'Excel', 'slug' => 'xlsx', 'extension' => 'xlsx', 'sort_order' => 2],
-            ['name' => 'CSV', 'slug' => 'csv', 'extension' => 'csv', 'sort_order' => 3],
+            ['name' => 'Word', 'slug' => 'docx', 'extension' => 'docx', 'sort_order' => 3],
+            ['name' => 'CSV', 'slug' => 'csv', 'extension' => 'csv', 'sort_order' => 4],
         ]);
 
         $this->seedTable('reservation_log_actions', [

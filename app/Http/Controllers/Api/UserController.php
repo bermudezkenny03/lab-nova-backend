@@ -145,10 +145,12 @@ class UserController extends Controller
     {
         try {
             $roles = Role::ordered()->get();
+            $genderTypes = \App\Models\GenderType::active()->ordered()->get();
 
             return response()->json([
                 'message' => 'General data retrieved successfully',
                 'roles' => $roles,
+                'genderTypes' => $genderTypes,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

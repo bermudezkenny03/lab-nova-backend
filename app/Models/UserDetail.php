@@ -9,11 +9,16 @@ class UserDetail extends Model
 {
     use SoftDeletes;
     
-    protected $fillable = ['gender', 'birthdate', 'address', 'addon_address', 'notes', 'user_id'];
+    protected $fillable = ['gender_type_id', 'birthdate', 'address', 'addon_address', 'notes', 'user_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function genderType()
+    {
+        return $this->belongsTo(GenderType::class, 'gender_type_id');
     }
 
     public static function createUserDetail($validated, $userId)

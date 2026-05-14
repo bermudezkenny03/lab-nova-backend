@@ -17,6 +17,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me/permissions', [AuthController::class, 'getPermissions']);
+    Route::get('/me', [AuthController::class, 'me']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Routes for users
@@ -40,8 +41,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/general-data', [EquipmentController::class, 'getGeneralData']);
     });
     Route::apiResource('equipments', EquipmentController::class);
+    
+    Route::prefix('reservations')->group(function () {
+        Route::get('/general-data', [ReservationController::class, 'getGeneralData']);
+        Route::post('/{id}/approve', [ReservationController::class, 'approve']);
+        Route::post('/{id}/reject', [ReservationController::class, 'reject']);
+    });
     Route::apiResource('reservations', ReservationController::class);
+    
     Route::apiResource('reservation-logs', ReservationLogController::class);
+    Route::prefix('report-requests')->group(function () {
+        Route::get('/general-data', [ReportRequestController::class, 'getGeneralData']);
+    });
     Route::apiResource('report-requests', ReportRequestController::class);
     Route::apiResource('reports', ReportController::class);
+    Route::prefix('report-requests')->group(function () {
+        Route::get('/general-data', [ReportRequestController::class, 'getGeneralData']);
+        Route::post('/{reportRequest}/generate', [ReportController::class, 'generate']);
+    });
 });

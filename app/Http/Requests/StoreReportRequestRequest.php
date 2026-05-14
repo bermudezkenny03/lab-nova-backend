@@ -15,9 +15,9 @@ class StoreReportRequestRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'type' => 'required|in:reservations,equipment_usage,user_activity',
+            'report_request_type_id' => 'required|exists:report_request_types,id',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'filters' => 'nullable|array',
         ];
     }
