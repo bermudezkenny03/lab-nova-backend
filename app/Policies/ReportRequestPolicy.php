@@ -35,4 +35,9 @@ class ReportRequestPolicy
     {
         return $user->hasPermission($this->module, 'delete');
     }
+
+    public function generate(User $user, ReportRequest $reportRequest): bool
+    {
+        return $user->hasPermission($this->module, 'edit');
+    }
 }

@@ -25,8 +25,8 @@ class DashboardController extends Controller
                 'equipment_count' => Equipment::count(),
                 'equipment_active' => Equipment::where('is_active', true)->count(),
                 'reservations_count' => Reservation::count(),
-                'reservations_pending' => Reservation::whereHas('reservationStatus', fn($q) => $q->where('slug', 'pending'))->count(),
-                'reservations_approved' => Reservation::whereHas('reservationStatus', fn($q) => $q->where('slug', 'approved'))->count(),
+                'reservations_pending' => Reservation::whereHas('reservation_status', fn($q) => $q->where('slug', 'pending'))->count(),
+                'reservations_approved' => Reservation::whereHas('reservation_status', fn($q) => $q->where('slug', 'approved'))->count(),
                 'reports_count' => Report::count(),
                 'monthly_reservations' => $this->getMonthlyReservations(),
                 'equipment_by_category' => $this->getEquipmentByCategory(),
@@ -83,7 +83,7 @@ class DashboardController extends Controller
 
     private function getRecentActivity(): array
     {
-        $reservations = Reservation::with(['user', 'equipment', 'reservationStatus'])
+        $reservations = Reservation::with(['user', 'equipment', 'reservation_status'])
             ->latest()
             ->limit(5)
             ->get()

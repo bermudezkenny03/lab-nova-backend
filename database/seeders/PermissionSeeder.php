@@ -56,7 +56,7 @@ class PermissionSeeder extends Seeder
         ]);
 
         $resourceManagement = Module::create([
-            'name' => 'Recursos',
+            'name' => 'Gestión de Catálogo',
             'slug' => 'catalog-management',
             'icon' => 'mdi-laptop',
             'route' => null,
@@ -67,7 +67,7 @@ class PermissionSeeder extends Seeder
         ]);
 
         $reservationManagement = Module::create([
-            'name' => 'Reservaciones',
+            'name' => 'Gestión de Reservas',
             'slug' => 'reservation-management',
             'icon' => 'mdi-calendar-clock',
             'route' => null,
@@ -78,7 +78,7 @@ class PermissionSeeder extends Seeder
         ]);
 
         $reportManagement = Module::create([
-            'name' => 'Reportes',
+            'name' => 'Gestión de Reportes',
             'slug' => 'report-management',
             'icon' => 'mdi-file-chart',
             'route' => null,
@@ -132,17 +132,6 @@ class PermissionSeeder extends Seeder
             'show_in_sidebar' => 1,
         ]);
 
-        $reservationLogs = Module::create([
-            'name' => 'Historial',
-            'slug' => 'reservation-logs',
-            'icon' => 'mdi-history',
-            'route' => '/reservation-logs',
-            'parent_id' => $reservationManagement->id,
-            'is_active' => 1,
-            'sort_order' => 2,
-            'show_in_sidebar' => 1,
-        ]);
-
         $reportRequests = Module::create([
             'name' => 'Solicitudes',
             'slug' => 'report-requests',
@@ -155,7 +144,7 @@ class PermissionSeeder extends Seeder
         ]);
 
         $reports = Module::create([
-            'name' => 'Reportes generados',
+            'name' => 'Historial de Reportes',
             'slug' => 'reports',
             'icon' => 'mdi-file-chart',
             'route' => '/reports',
@@ -213,7 +202,6 @@ class PermissionSeeder extends Seeder
             $categories,
             $equipment,
             $reservations,
-            $reservationLogs,
             $reportRequests,
             $reports,
             $users,
@@ -225,7 +213,6 @@ class PermissionSeeder extends Seeder
             $categories,
             $equipment,
             $reservations,
-            $reservationLogs,
             $reportRequests,
             $reports,
         ], $permissionList);
@@ -235,12 +222,12 @@ class PermissionSeeder extends Seeder
             $reservations,
             $reportRequests,
             $reports,
-        ], $permissionList->whereIn('slug', ['view', 'create']));
+        ], $permissionList->whereIn('slug', ['view', 'create', 'edit']));
 
         $assignPermissions($student, [
             $dashboard,
             $reservations,
-        ], $permissionList->whereIn('slug', ['view', 'create']));
+        ], $permissionList->whereIn('slug', ['view', 'create', 'edit']));
 
         $this->command->info('✅ Roles, módulos y permisos creados correctamente');
     }

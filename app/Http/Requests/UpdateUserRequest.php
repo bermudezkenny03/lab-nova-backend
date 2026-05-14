@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
             'phone' => 'sometimes|string|max:20',
             'status' => 'sometimes|boolean',
             'role_id' => 'sometimes|exists:roles,id',
-            'gender' => 'nullable|string|max:14',
+            'gender_type_id' => 'nullable|exists:gender_types,id',
             'birthdate' => 'nullable|date',
             'address' => 'nullable|string|max:100',
             'addon_address' => 'nullable|string|max:50',

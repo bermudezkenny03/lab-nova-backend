@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReportRequest;
+use App\Models\ReportRequestType;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreReportRequestRequest;
 use App\Http\Requests\UpdateReportRequestRequest;
@@ -14,7 +15,7 @@ class ReportRequestController extends Controller
     {
         try {
             $this->authorize('viewAny', ReportRequest::class);
-            $items = ReportRequest::with('user')->orderBy('created_at','desc')->get();
+            $items = ReportRequest::with(['user', 'reportRequestType', 'reportRequestStatus', 'reports'])->orderBy('created_at','desc')->get();
             return response()->json(['data' => $items]);
         } catch (\Exception $e) {
             Log::error('Error fetching report requests', ['error' => $e->getMessage()]);
@@ -22,11 +23,26 @@ class ReportRequestController extends Controller
         }
     }
 
+    public function getGeneralData()
+    {
+        $this->authorize('viewAny', ReportRequest::class);
+        return response()->json([
+            'data' => [
+                'types' => ReportRequestType::select('id', 'name', 'slug', 'description')->get(),
+            ]
+        ]);
+    }
+
     public function store(StoreReportRequestRequest $request)
     {
         try {
             $this->authorize('create', ReportRequest::class);
-            $req = ReportRequest::create($request->validated());
+            $validated = $request->validated();
+            if (!isset($validated['report_request_status_id'])) {
+                $validated['report_request_status_id'] = 1;
+            }
+            $req = ReportRequest::create($validated);
+            $req->load(['user', 'reportRequestType', 'reportRequestStatus']);
             return response()->json(['message' => 'Report request created', 'report_request' => $req], 201);
         } catch (\Exception $e) {
             Log::error('Error creating report request', ['error' => $e->getMessage()]);
@@ -37,7 +53,7 @@ class ReportRequestController extends Controller
     public function show($id)
     {
         try {
-            $req = ReportRequest::with('reports')->find($id);
+            $req = ReportRequest::with(['user', 'reportRequestType', 'reportRequestStatus', 'reports'])->find($id);
             if (! $req) return response()->json(['message' => 'Not found'], 404);
             $this->authorize('view', $req);
             return response()->json(['report_request' => $req]);
@@ -55,6 +71,7 @@ class ReportRequestController extends Controller
             $this->authorize('update', $req);
 
             $req->update($request->validated());
+            $req->load(['user', 'reportRequestType', 'reportRequestStatus']);
 
             return response()->json(['message' => 'Report request updated', 'report_request' => $req]);
         } catch (\Exception $e) {

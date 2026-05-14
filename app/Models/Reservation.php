@@ -31,14 +31,14 @@ class Reservation extends Model
         return $this->hasMany(ReservationLog::class);
     }
 
-    public function reservationStatus()
+    public function reservation_status()
     {
         return $this->belongsTo(ReservationStatus::class, 'reservation_status_id');
     }
 
     public function getStatusAttribute()
     {
-        return $this->reservationStatus?->slug;
+        return $this->reservation_status?->slug;
     }
 
     public function setStatusAttribute($value)
